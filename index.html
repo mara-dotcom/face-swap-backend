@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Look Swap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 24px;
+    }
+
+    .upload {
+      margin-bottom: 24px;
+    }
+
+    input[type="file"] {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .look-picker {
+      position: relative;
+      margin: 20px 0;
+      user-select: none;
+    }
+
+    .card {
+      width: 100%;
+      height: 480px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      touch-action: pan-y;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .look-name {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+
+    .generate {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      border: none;
+      background: #000;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .result {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .result img {
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <h1>Choose Your Look</h1>
+
+    <div class="upload">
+      <input type="file" id="faceInput" accept="image/*" />
+    </div>
+
+    <div class="look-picker">
+      <div class="card" id="card">
+        <img id="lookImage" />
+      </div>
+      <div class="look-name" id="lookName"></div>
+    </div>
+
+    <button class="generate" id="generateBtn">Generate</button>
+
+    <div class="status" id="status"></div>
+
+    <div class="result" id="result">
+      <img id="resultImg" />
+    </div>
+  </div>
+
+  <script>
+    // 🔹 YOUR LOOKS (HOSTED ON GITHUB PAGES)
+    const looks = [
+      {
+        name: "Black Ghepardo",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Black%20Ghepardo.jpg"
+      },
+      {
+        name: "Black Luna",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Black%20luna.jpg"
+      },
+      {
+        name: "Champagne Oro & Black",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Champagne%20Oro%20%26%20Black.jpg"
+      },
+      {
+        name: "French Blu Lino",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/French%20Blu%20Lino.jpg"
+      },
+      {
+        name: "Navy Blu Fiore",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Navy%20Blu%20Fiore.jpg"
+      },
+      {
+        name: "Rippled Inox",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Rippled%20Inox.jpg"
+      },
+      {
+        name: "Scarlet Lustro",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Scarlet%20Lustro.jpg"
+      },
+      {
+        name: "Tomaline Boucle Smoking",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Tomaline%20Boucle%20Smoking.jpeg"
+      },
+      {
+        name: "Tourmaline Boucle",
+        image: "https://mara-dotcom.github.io/face-swap-backend/Looks/Tourmaline%20Boucle.jpg"
+      }
+    ];
+
+    let current = 0;
+    let faceFile = null;
+
+    const lookImage = document.getElementById("lookImage");
+    const lookName = document.getElementById("lookName");
+    const card = document.getElementById("card");
+
+    function showLook() {
+      lookImage.src = looks[current].image;
+      lookName.innerText = looks[current].name;
+    }
+
+    showLook();
+
+    // 🔹 SWIPE GESTURES
+    let startX = 0;
+    let endX = 0;
+
+    card.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    card.addEventListener("touchend", (e) => {
+      endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50) nextLook();
+      if (endX - startX > 50) prevLook();
+    });
+
+    function nextLook() {
+      current = (current + 1) % looks.length;
+      showLook();
+    }
+
+    function prevLook() {
+      current = (current - 1 + looks.length) % looks.length;
+      showLook();
+    }
+
+    document.getElementById("faceInput").onchange = (e) => {
+      faceFile = e.target.files[0];
+    };
+
+    document.getElementById("generateBtn").onclick = async () => {
+      if (!faceFile) {
+        alert("Please upload your face first");
+        return;
+      }
+
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
+      const resultImg = document.getElementById("resultImg");
+
+      status.innerText = "Working... please wait";
+      result.style.display = "none";
+
+      const formData = new FormData();
+      formData.append("face", faceFile);
+      formData.append("body_url", looks[current].image);
+
+      try {
+        const res = await fetch(
+          "https://face-swap-backend-2hy6.onrender.com/swap",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+        const data = await res.json();
+        resultImg.src = data.image;
+        result.style.display = "block";
+        status.innerText = "Done!";
+      } catch (err) {
+        console.error(err);
+        status.innerText = "Something went wrong.";
+      }
+    };
+  </script>
+</body>
+</html>
