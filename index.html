@@ -213,7 +213,13 @@
       lookName.innerText = looks[current].name;
     }
 
-    showLook();
+    current = 0;
+showLook();
+function updateGenerateState() {
+  const btn = document.getElementById("generateBtn");
+  btn.disabled = !faceFile || !looks[current];
+}
+
 
     // 🔹 SWIPE GESTURES
     let startX = 0;
