@@ -79,9 +79,12 @@
     .arrow.left { left: -12px; }
     .arrow.right { right: -12px; }
 
-    @media (max-width: 600px) {
-      .arrow { display: none; }
-    }
+    @media (min-width: 900px) {
+  .result {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
 
     button.generate {
       margin-top: 20px;
@@ -105,11 +108,12 @@
       font-size: 14px;
     }
 
-    .result {
-      margin-top: 30px;
-      display: none;
-    }
-
+  .result {
+  margin-top: 30px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
     .result img {
       width: 100%;
       border-radius: 20px;
