@@ -244,7 +244,8 @@
     const resultImg = document.getElementById("resultImg");
 
     status.innerText = "Working... please wait";
-    result.style.display = "none";
+    result.style.opacity = "0";
+result.style.visibility = "hidden";
 
     const formData = new FormData();
     formData.append("face", faceFile);
