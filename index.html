@@ -17,11 +17,11 @@
 
     .app {
       width: 100%;
-      max-width: 420px;
-      text-align: center;
+      max-width: 900px;
     }
 
     h1 {
+      text-align: center;
       font-size: 22px;
       margin-bottom: 20px;
     }
@@ -30,14 +30,19 @@
       margin-bottom: 20px;
     }
 
+    .main-area {
+      display: block;
+    }
+
     .look-picker {
       position: relative;
-      margin: 20px 0;
+      margin-bottom: 20px;
     }
 
     .card {
       width: 100%;
-      height: 480px;
+      max-width: 420px;
+      height: 520px;
       border-radius: 20px;
       overflow: hidden;
       background: #fff;
@@ -66,7 +71,7 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.9);
       border: none;
       width: 42px;
       height: 42px;
@@ -79,16 +84,13 @@
     .arrow.left { left: -12px; }
     .arrow.right { right: -12px; }
 
-    @media (min-width: 900px) {
-  .result {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
+    @media (max-width: 600px) {
+      .arrow { display: none; }
+    }
 
-    button.generate {
-      margin-top: 20px;
+    .generate {
       width: 100%;
+      max-width: 420px;
       padding: 14px;
       border-radius: 999px;
       border: none;
@@ -96,59 +98,41 @@
       color: #fff;
       font-size: 16px;
       cursor: pointer;
+      margin-bottom: 10px;
     }
 
-    button.generate:disabled {
+    .generate:disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
 
     .status {
-      margin-top: 14px;
       font-size: 14px;
+      margin-bottom: 10px;
     }
 
-  .result {
-  margin-top: 30px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease;
-}
+    .result {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+
     .result img {
       width: 100%;
+      max-width: 420px;
       border-radius: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
-    /* Desktop layout: result beside look picker */
-@media (min-width: 900px) {
-  .main-area {
-    display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 32px;
-    align-items: start;
-  }
 
-  .result {
-    display: block;
-  }
-
-  .result img {
-    max-height: 520px;
-    object-fit: contain;
-  }
-}
-
-/* Mobile stays stacked */
-@media (max-width: 899px) {
-  .main-area {
-    display: block;
-  }
-
-  .result {
-    margin-top: 30px;
-  }
-}
-
+    /* Desktop layout */
+    @media (min-width: 900px) {
+      .main-area {
+        display: grid;
+        grid-template-columns: 420px 420px;
+        gap: 40px;
+        align-items: start;
+      }
+    }
   </style>
 </head>
 
@@ -158,28 +142,29 @@
 
     <input type="file" id="faceInput" accept="image/*" />
 
-   <div class="main-area">
-  <div>
-    <div class="look-picker">
-      <button class="arrow left" onclick="prevLook()">‹</button>
+    <div class="main-area">
+      <div>
+        <div class="look-picker">
+          <button class="arrow left" onclick="prevLook()">‹</button>
 
-      <div class="card" id="card">
-        <img id="lookImage" />
+          <div class="card" id="card">
+            <img id="lookImage" />
+          </div>
+
+          <button class="arrow right" onclick="nextLook()">›</button>
+
+          <div class="look-name" id="lookName"></div>
+        </div>
+
+        <button class="generate" id="generateBtn" disabled>Generate</button>
+        <div class="status" id="status"></div>
       </div>
 
-      <button class="arrow right" onclick="nextLook()">›</button>
-
-      <div class="look-name" id="lookName"></div>
+      <div class="result" id="result">
+        <img id="resultImg" />
+      </div>
     </div>
-
-    <button class="generate" id="generateBtn" disabled>Generate</button>
-    <div class="status" id="status"></div>
   </div>
-
-  <div class="result" id="result">
-    <img id="resultImg" />
-  </div>
-</div>
 
 <script>
   const looks = [
@@ -201,6 +186,9 @@
   const lookName = document.getElementById("lookName");
   const generateBtn = document.getElementById("generateBtn");
   const card = document.getElementById("card");
+  const result = document.getElementById("result");
+  const resultImg = document.getElementById("resultImg");
+  const status = document.getElementById("status");
 
   function updateGenerateState() {
     generateBtn.disabled = !faceFile || !looks[current];
@@ -239,22 +227,16 @@
   generateBtn.onclick = async () => {
     if (!faceFile || !looks[current]) return;
 
-    const status = document.getElementById("status");
-    const result = document.getElementById("result");
-    const resultImg = document.getElementById("resultImg");
-
     status.innerText = "Working... please wait";
     result.style.opacity = "0";
-result.style.visibility = "hidden";
+    result.style.visibility = "hidden";
 
     const formData = new FormData();
     formData.append("face", faceFile);
-  // Fetch the look image and convert to Blob
-const bodyResponse = await fetch(looks[current].image);
-const bodyBlob = await bodyResponse.blob();
 
-// Append as FILE (what backend expects)
-formData.append("body", bodyBlob, "look.jpg");
+    const bodyResponse = await fetch(looks[current].image);
+    const bodyBlob = await bodyResponse.blob();
+    formData.append("body", bodyBlob, "look.jpg");
 
     try {
       const res = await fetch("https://face-swap-backend-2hy6.onrender.com/swap", {
@@ -262,34 +244,20 @@ formData.append("body", bodyBlob, "look.jpg");
         body: formData
       });
 
-const data = await res.json();
-console.log("Server response:", data);
+      const data = await res.json();
+      const imageUrl = data.image.replace("http://", "https://");
 
-// Try all known response formats safely
-const imageUrl =
-  data.image ||
-  data.url ||
-  data.output ||
-  (Array.isArray(data) ? data[0] : null);
-
-if (!imageUrl) {
-  throw new Error("No image URL returned from server");
-}
-
-resultImg.src = imageUrl.replace("http://", "https://");
-result.style.opacity = "1";
-result.style.visibility = "visible";
-status.innerText = "Done!";
-
+      resultImg.src = imageUrl;
+      result.style.opacity = "1";
+      result.style.visibility = "visible";
+      status.innerText = "Done!";
     } catch (err) {
       console.error(err);
       status.innerText = "Something went wrong.";
     }
   };
 
-  // Init
   showLook();
 </script>
-
 </body>
 </html>
