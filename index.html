@@ -291,6 +291,18 @@ function updateGenerateState() {
   }
 };
 
+    if (!res.ok) throw new Error("Bad response");
+
+    const data = await res.json();
+    resultImg.src = data.image;
+    result.style.display = "block";
+    status.innerText = "Done!";
+  } catch (err) {
+    console.error(err);
+    status.innerText = "Something went wrong.";
+  }
+};
+
 
 formData.append("body_url", looks[current].image);
 
