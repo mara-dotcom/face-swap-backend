@@ -8,6 +8,7 @@ import cors from "cors";
 // APP SETUP
 // =====================
 const app = express();
+app.set("trust proxy", 1);
 const upload = multer({ dest: "uploads/" });
 
 // ✅ Allow requests from any website
@@ -110,7 +111,7 @@ Ensure the final image looks realistic, well aligned, and seamless.
       fs.writeFileSync(outputPath, buffer);
 
       // ✅ ABSOLUTE URL FIX
-      const baseUrl = `${req.protocol}://${req.get("host")}`;
+     const baseUrl = `https://${req.get("host")}`;
 
       res.json({
         image: `${baseUrl}/${outputPath}`
