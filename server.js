@@ -10,11 +10,8 @@ import cors from "cors";
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-// ✅ CORS FIX (VERY IMPORTANT)
+// ✅ Allow requests from any website
 app.use(cors());
-
-// Serve frontend (optional if index.html is here)
-app.use(express.static(process.cwd()));
 
 // Serve generated images
 app.use("/outputs", express.static("outputs"));
@@ -94,7 +91,7 @@ Ensure the final image looks realistic, well aligned, and seamless.
 
       console.log("QWEN OUTPUT:", output);
 
-      // Cleanup uploads
+      // Cleanup uploaded files
       fs.unlinkSync(facePath);
       fs.unlinkSync(bodyPath);
 
@@ -104,7 +101,7 @@ Ensure the final image looks realistic, well aligned, and seamless.
         });
       }
 
-      // Handle stream output
+      // Convert stream to image file
       const buffer = await streamToBuffer(output[0]);
 
       fs.mkdirSync("outputs", { recursive: true });
@@ -112,8 +109,11 @@ Ensure the final image looks realistic, well aligned, and seamless.
       const outputPath = `outputs/${fileName}`;
       fs.writeFileSync(outputPath, buffer);
 
+      // ✅ ABSOLUTE URL FIX
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+
       res.json({
-        image: `/${outputPath}`
+        image: `${baseUrl}/${outputPath}`
       });
 
     } catch (err) {
