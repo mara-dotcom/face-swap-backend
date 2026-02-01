@@ -220,10 +220,24 @@
         body: formData
       });
 
-      const data = await res.json();
-      resultImg.src = data.image;
-      result.style.display = "block";
-      status.innerText = "Done!";
+const data = await res.json();
+console.log("Server response:", data);
+
+// Try all known response formats safely
+const imageUrl =
+  data.image ||
+  data.url ||
+  data.output ||
+  (Array.isArray(data) ? data[0] : null);
+
+if (!imageUrl) {
+  throw new Error("No image URL returned from server");
+}
+
+resultImg.src = imageUrl;
+result.style.display = "block";
+status.innerText = "Done!";
+
     } catch (err) {
       console.error(err);
       status.innerText = "Something went wrong.";
