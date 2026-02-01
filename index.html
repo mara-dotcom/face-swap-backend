@@ -115,6 +115,36 @@
       border-radius: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
+    /* Desktop layout: result beside look picker */
+@media (min-width: 900px) {
+  .main-area {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .result {
+    display: block;
+  }
+
+  .result img {
+    max-height: 520px;
+    object-fit: contain;
+  }
+}
+
+/* Mobile stays stacked */
+@media (max-width: 899px) {
+  .main-area {
+    display: block;
+  }
+
+  .result {
+    margin-top: 30px;
+  }
+}
+
   </style>
 </head>
 
@@ -124,6 +154,8 @@
 
     <input type="file" id="faceInput" accept="image/*" />
 
+   <div class="main-area">
+  <div>
     <div class="look-picker">
       <button class="arrow left" onclick="prevLook()">‹</button>
 
@@ -137,13 +169,13 @@
     </div>
 
     <button class="generate" id="generateBtn" disabled>Generate</button>
-
     <div class="status" id="status"></div>
-
-    <div class="result" id="result">
-      <img id="resultImg" />
-    </div>
   </div>
+
+  <div class="result" id="result">
+    <img id="resultImg" />
+  </div>
+</div>
 
 <script>
   const looks = [
