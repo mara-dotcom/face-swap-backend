@@ -276,7 +276,8 @@ if (!imageUrl) {
 }
 
 resultImg.src = imageUrl.replace("http://", "https://");
-result.style.display = "block";
+result.style.opacity = "1";
+result.style.visibility = "visible";
 status.innerText = "Done!";
 
     } catch (err) {
