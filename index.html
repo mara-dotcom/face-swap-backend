@@ -251,27 +251,46 @@ function updateGenerateState() {
       faceFile = e.target.files[0];
     };
 
-    document.getElementById("generateBtn").onclick = async () => {
-      if (!faceFile) {
-        alert("Please upload your face first");
-        return;
+   document.getElementById("generateBtn").onclick = async () => {
+  if (!faceFile || !looks[current] || !looks[current].image) {
+    alert("Please upload your face and select a look first.");
+    return;
+  }
+
+  console.log("Selected look:", looks[current]);
+
+  const status = document.getElementById("status");
+  const result = document.getElementById("result");
+  const resultImg = document.getElementById("resultImg");
+
+  status.innerText = "Working... please wait";
+  result.style.display = "none";
+
+  const formData = new FormData();
+  formData.append("face", faceFile);
+  formData.append("body_url", looks[current].image);
+
+  try {
+    const res = await fetch(
+      "https://face-swap-backend-2hy6.onrender.com/swap",
+      {
+        method: "POST",
+        body: formData
       }
+    );
 
-      const status = document.getElementById("status");
-      const result = document.getElementById("result");
-      const resultImg = document.getElementById("resultImg");
+    if (!res.ok) throw new Error("Bad response");
 
-      status.innerText = "Working... please wait";
-      result.style.display = "none";
+    const data = await res.json();
+    resultImg.src = data.image;
+    result.style.display = "block";
+    status.innerText = "Done!";
+  } catch (err) {
+    console.error(err);
+    status.innerText = "Something went wrong.";
+  }
+};
 
-      const formData = new FormData();
-      formData.append("face", faceFile);
-     console.log("Selected look:", looks[current]);
-
-if (!looks[current] || !looks[current].image) {
-  alert("Look not loaded yet. Please swipe and try again.");
-  return;
-}
 
 formData.append("body_url", looks[current].image);
 
