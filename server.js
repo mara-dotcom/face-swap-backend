@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import Replicate from "replicate";
+import cors from "cors";
 
 // =====================
 // APP SETUP
@@ -9,7 +10,10 @@ import Replicate from "replicate";
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-// Serve frontend files
+// ✅ CORS FIX (VERY IMPORTANT)
+app.use(cors());
+
+// Serve frontend (optional if index.html is here)
 app.use(express.static(process.cwd()));
 
 // Serve generated images
@@ -26,7 +30,7 @@ const replicate = new Replicate({
 // HELPERS
 // =====================
 
-// Convert uploaded image → base64
+// Convert file → base64 data URL
 function toDataURL(filePath) {
   const buffer = fs.readFileSync(filePath);
   return "data:image/jpeg;base64," + buffer.toString("base64");
@@ -100,16 +104,14 @@ Ensure the final image looks realistic, well aligned, and seamless.
         });
       }
 
-      // Handle ReadableStream output
+      // Handle stream output
       const buffer = await streamToBuffer(output[0]);
 
-      // Save result
       fs.mkdirSync("outputs", { recursive: true });
       const fileName = `result_${Date.now()}.jpg`;
       const outputPath = `outputs/${fileName}`;
       fs.writeFileSync(outputPath, buffer);
 
-      // Return URL to frontend
       res.json({
         image: `/${outputPath}`
       });
@@ -126,6 +128,8 @@ Ensure the final image looks realistic, well aligned, and seamless.
 // =====================
 // START SERVER
 // =====================
-app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

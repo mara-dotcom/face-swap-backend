@@ -30,7 +30,8 @@ document.getElementById("uploadForm").onsubmit = async e => {
 
   const formData = new FormData(e.target);
 
-  const res = await fetch("/swap", {
+  const res = await fetch("https://face-swap-backend-2hy6.onrender.com/swap", {
+
     method: "POST",
     body: formData
   });
