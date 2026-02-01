@@ -95,6 +95,38 @@
       border-radius: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
+    .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.85);
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow.left {
+  left: -12px;
+}
+
+.arrow.right {
+  right: -12px;
+}
+
+/* Hide arrows on small screens (mobile uses swipe) */
+@media (max-width: 600px) {
+  .arrow {
+    display: none;
+  }
+}
+
   </style>
 </head>
 
@@ -107,11 +139,17 @@
     </div>
 
     <div class="look-picker">
-      <div class="card" id="card">
-        <img id="lookImage" />
-      </div>
-      <div class="look-name" id="lookName"></div>
-    </div>
+  <button class="arrow left" onclick="prevLook()">‹</button>
+
+  <div class="card" id="card">
+    <img id="lookImage" />
+  </div>
+
+  <button class="arrow right" onclick="nextLook()">›</button>
+
+  <div class="look-name" id="lookName"></div>
+</div>
+
 
     <button class="generate" id="generateBtn">Generate</button>
 
