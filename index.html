@@ -220,7 +220,13 @@
 
       const formData = new FormData();
       formData.append("face", faceFile);
-      formData.append("body_url", looks[current].image);
+      if (!looks[current] || !looks[current].image) {
+  alert("Look not loaded yet. Please swipe and try again.");
+  return;
+}
+
+formData.append("body_url", looks[current].image);
+
 
       try {
         const res = await fetch(
