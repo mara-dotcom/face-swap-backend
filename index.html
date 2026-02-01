@@ -239,7 +239,7 @@ if (!imageUrl) {
   throw new Error("No image URL returned from server");
 }
 
-resultImg.src = imageUrl;
+resultImg.src = imageUrl.replace("http://", "https://");
 result.style.display = "block";
 status.innerText = "Done!";
 
