@@ -208,17 +208,19 @@
     const lookName = document.getElementById("lookName");
     const card = document.getElementById("card");
 
-    function showLook() {
-      lookImage.src = looks[current].image;
-      lookName.innerText = looks[current].name;
-    }
+   function showLook() {
+  lookImage.src = looks[current].image;
+  lookName.innerText = looks[current].name;
+  updateGenerateState();
+}
 
     current = 0;
 showLook();
 function updateGenerateState() {
-  const btn = document.getElementById("generateBtn");
-  btn.disabled = !faceFile || !looks[current];
-}
+  const btn = document.getElementById("faceInput").onchange = (e) => {
+  faceFile = e.target.files[0];
+  updateGenerateState();
+};
 
 
     // 🔹 SWIPE GESTURES
