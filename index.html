@@ -212,7 +212,12 @@
 
     const formData = new FormData();
     formData.append("face", faceFile);
-    formData.append("body_url", looks[current].image);
+  // Fetch the look image and convert to Blob
+const bodyResponse = await fetch(looks[current].image);
+const bodyBlob = await bodyResponse.blob();
+
+// Append as FILE (what backend expects)
+formData.append("body", bodyBlob, "look.jpg");
 
     try {
       const res = await fetch("https://face-swap-backend-2hy6.onrender.com/swap", {
